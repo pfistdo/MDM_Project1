@@ -1,26 +1,28 @@
 function classify_image(event, text) {
-  // Preview
-  if (file) {
-    preview.src = URL.createObjectURL(files[0]);
-  }
-  // Upload
-  const formData = new FormData();
-  for (const name in files) {
-    formData.append(name, files[name]);
-  }
-  fetch("/model/image", {
-    method: "POST",
-    headers: {},
-    body: formData,
-  })
-    .then((response) => {
-      console.log(response);
-      response.text().then(function (text) {
-        answer.innerHTML = text;
+    var form_data = new FormData();
+    var img = document.getElementById("upload_image").files[0];
+    form_data.append("file", img);
+  
+    if (img != undefined) {
+      $.ajax({
+        url: "model/image", // point to server-side URL
+        dataType: "text", // what to expect back from server
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: form_data,
+        type: "post",
+        success: function (response) {
+          alert(response, "success");
+          document.getElementById("classify_btn").disabled = false; // activate classify button
+        },
+        error: function (response) {
+          alert(response, "danger");
+        },
       });
-    })
-    .then((success) => console.log(success))
-    .catch((error) => console.log(error));
+    } else {
+    //   alert("Please select an image to upload!", "danger");
+    }
 }
 
 // Upload image to server using AJAX Post
@@ -40,6 +42,7 @@ function upload_image() {
       type: "post",
       success: function (response) {
         alert(response, "success");
+        document.getElementById("classify_btn").disabled = false; // activate classify button
       },
       error: function (response) {
         alert(response, "danger");
