@@ -1,13 +1,26 @@
-from diffusers import StableDiffusionPipeline
+from transformers import AutoImageProcessor, AutoModelForObjectDetection
 import torch
-# print(torch.cuda.is_available())
+from PIL import Image
+import requests
 
-device = torch.device("cpu")
-model_id = "nitrosocke/nitro-diffusion"
-pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
-pipe = pipe.to("cuda")
+url = "http://images.cocodataset.org/val2017/000000039769.jpg"
+image = Image.open(requests.get(url, stream=True).raw)
 
-prompt = "archer arcane style magical princess with golden hair"
-image = pipe(prompt).images[0]
+image_processor = AutoImageProcessor.from_pretrained("hustvl/yolos-tiny")
+model = AutoModelForObjectDetection.from_pretrained("hustvl/yolos-tiny")
 
-image.save("./magical_princess.png")
+inputs = image_processor(images=image, return_tensors="pt")
+outputs = model(**inputs)
+
+# convert outputs (bounding boxes and class logits) to COCO API
+target_sizes = torch.tensor([image.size[::-1]])
+results = image_processor.post_process_object_detection(outputs, threshold=0.85, target_sizes=target_sizes)[
+    0
+]
+
+for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
+    box = [round(i, 2) for i in box.tolist()]
+    print(
+        f"Detected {model.config.id2label[label.item()]} with confidence "
+        f"{round(score.item(), 3)} at location {box}"
+    )
