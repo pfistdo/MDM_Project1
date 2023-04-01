@@ -4,6 +4,9 @@ function classify_image(event, text) {
     form_data.append("file", img);
   
     if (img != undefined) {
+      var btn = document.getElementById("classify_btn");
+      btn.classList.add("button--loading");
+      btn.textContent = ''
       $.ajax({
         url: "model/image", // point to server-side URL
         dataType: "text", // what to expect back from server
@@ -19,6 +22,10 @@ function classify_image(event, text) {
         error: function (response) {
           alert(response, "danger");
         },
+        complete: function (response) {
+          btn.classList.remove("button--loading")
+          btn.textContent = 'Classify image'
+        }
       });
     } else {
     //   alert("Please select an image to upload!", "danger");
