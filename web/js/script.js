@@ -13,7 +13,7 @@ function classify_image(event, text) {
         data: form_data,
         type: "post",
         success: function (response) {
-          alert(response, "success");
+          document.getElementById("imagePreview").insertAdjacentHTML("afterbegin", response);
           document.getElementById("classify_btn").disabled = false; // activate classify button
         },
         error: function (response) {
