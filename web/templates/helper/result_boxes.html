@@ -10,8 +10,8 @@
     }
 
     #draw .box-item {
-        fill: blue;
-        stroke: darkblue;
+        /* fill: blue;
+        stroke: darkblue; */
         stroke-width: 4;
         fill-opacity: 0.1;
         stroke-opacity: 0.6;
@@ -20,26 +20,31 @@
     #draw .box-item:hover {
         fill-opacity: 0.3;
     }
-
-    /* #draw .box-item:hover ~ .box-item {
-        display: none;
-    } */
-
-    /* #draw:not(:hover) .box-item {
-        fill: red;
-    } */
 </style>
 
 
-<div>
+
+<div class="">
     <img src="{{ img_path }}" id="screenshot">
     <svg width="{{ img.width }}" height="{{ img.height }}" viewBox="0 0 {{ img.width }} {{ img.height }}" id="draw"
         xmlns="http://www.w3.org/2000/svg">
         <g id="boxes">
             {% for res in results %}
             <rect class="box-item" x="{{ res['boxes'][0] }}" y="{{ res['boxes'][1] }}" width="{{ res['boxes'][2] }}"
-                height="{{ res['boxes'][3] }}" rx="1" />
+                height="{{ res['boxes'][3] }}" rx="1"
+                style="fill: {{ colors[loop.index] }}; stroke: {{ colors[loop.index] }};" />
             {% endfor %}
         </g>
     </svg>
+</div>
+<div class="float-end">
+    {% for res in results %}
+    <p>{{ res['label'] }}</p>
+    <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-label="Basic example"
+            style="width: 100%; background-color: {{ colors[loop.index] }};" aria-valuenow="100" aria-valuemin="0"
+            aria-valuemax="100"></div>
+    </div>
+    <p>{{ res['score'] }}</p>
+    {% endfor %}
 </div>

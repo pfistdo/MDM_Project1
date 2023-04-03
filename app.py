@@ -5,15 +5,17 @@ from transformers import AutoImageProcessor, AutoModelForObjectDetection
 import torch
 from PIL import Image
 
-app = Flask(__name__, static_folder="web", static_url_path="/", template_folder="web/templates")
-app.config['UPLOAD_FOLDER'] = "web/uploads"
+app = Flask(__name__, static_folder="web", static_url_path="/", template_folder="web/templates") 
+app.config['UPLOAD_FOLDER'] = "web/uploads" # folder to save uploaded images
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000 # 16MB
 
 
+# Index page
 @app.route("/")
 def hello_world():
     return render_template("index.html")
 
+# Classify image
 @app.route("/model/image", methods=["POST"])
 def classify_image():
     if request.method == 'POST':
@@ -40,9 +42,12 @@ def classify_image():
             results_list.append({'score':str(round(score.item(), 3)), 
                         'label': model.config.id2label[label.item()], 
                         'boxes': boxes})
+            
+        # colors for the bounding boxes
+        colors = ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'brown', 'grey', 'black']
+        return render_template("helper/result_boxes.html", img=image, results=results_list, colors=colors)
 
-        return render_template("helper/result.html", img=image, results=results_list)
-
+# Upload image
 @app.route("/upload", methods=["POST"])
 def image_upload():
     if request.method == 'POST':
